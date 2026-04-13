@@ -1,0 +1,34 @@
+name: Deploy to B org
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Install Salesforce CLI
+        run: npm install -g @salesforce/cli
+
+      - name: Authenticate to Salesforce (JWT)
+        run: |
+          echo "${{ secrets.SF_JWT_KEY }}" > server.key
+          sf org login jwt \
+            --client-id ${{ secrets.SF_CLIENT_ID }} \
+            --jwt-key-file server.key \
+            --username ${{ secrets.SF_USERNAME }} \
+            --alias B \
+            --instance-url ${{ secrets.SF_LOGIN_URL }}
+
+      - name: Deploy metadata
+        run: |
+          sf project deploy start \
+            --target-org B \
+            --source-dir force-app \
+            --wait 10
