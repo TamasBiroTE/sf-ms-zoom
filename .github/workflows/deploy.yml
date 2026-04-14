@@ -1,4 +1,4 @@
-name: Deploy to B org (Delta)
+name: Deploy to B org
 
 on:
   push:
@@ -12,17 +12,9 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0   # ❗ fontos a git history miatt
 
       - name: Install Salesforce CLI
         run: npm install -g @salesforce/cli
-
-      - name: Install SFDX Git Delta
-        run: echo y | sf plugins install sfdx-git-delta
-
-      - name: Verify plugin
-        run: sf plugins
 
       - name: Authenticate to Salesforce (JWT)
         run: |
@@ -34,27 +26,9 @@ jobs:
             --alias B \
             --instance-url ${{ secrets.SF_LOGIN_URL }}
 
-      - name: Create delta folder
-        run: mkdir delta
-
-      - name: Generate delta
+      - name: Deploy metadata
         run: |
-          sfdx sgd:source:delta \
-            --to "HEAD" \
-            --from "origin/main~1" \
-            --output-dir delta
-
-      - name: Deploy delta
-        run: |
-          if [ -d "delta/package" ] && [ "$(ls -A delta/package)" ]; then
-            sf project deploy start \
-              --target-org B \
-              --source-dir delta/package \
-              --wait 10
-          else
-            echo "No changes to deploy"
-          fi
-
-      - name: Debug delta
-        run: |
-          ls -R delta || true
+          sf project deploy start \
+            --target-org B \
+            --source-dir force-app \
+            --wait 10
