@@ -41,12 +41,20 @@ jobs:
         run: |
           sfdx sgd:source:delta \
             --to "HEAD" \
-            --from "HEAD~1" \
+            --from "origin/main~1" \
             --output-dir delta
 
       - name: Deploy delta
         run: |
-          sf project deploy start \
-            --target-org B \
-            --source-dir delta/package \
-            --wait 10
+          if [ -d "delta/package" ] && [ "$(ls -A delta/package)" ]; then
+            sf project deploy start \
+              --target-org B \
+              --source-dir delta/package \
+              --wait 10
+          else
+            echo "No changes to deploy"
+          fi
+
+      - name: Debug delta
+        run: |
+          ls -R delta || true
