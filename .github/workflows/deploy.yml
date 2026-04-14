@@ -34,6 +34,9 @@ jobs:
             --alias B \
             --instance-url ${{ secrets.SF_LOGIN_URL }}
 
+      - name: Create delta folder
+        run: mkdir delta
+
       - name: Generate delta
         run: |
           sfdx sgd:source:delta \
