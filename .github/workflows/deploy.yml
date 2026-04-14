@@ -33,7 +33,7 @@ jobs:
 
       - name: Generate delta
         run: |
-          sf sgd source delta \
+          sfdx sgd:source:delta \
             --to "HEAD" \
             --from "HEAD~1" \
             --output-dir delta
